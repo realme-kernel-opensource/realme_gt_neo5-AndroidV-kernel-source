@@ -538,8 +538,6 @@ int b53_enable_port(struct dsa_switch *ds, int port, struct phy_device *phy)
 	b53_br_egress_floods(ds, port, true, true);
 	b53_port_set_learning(dev, port, false);
 
-	b53_br_egress_floods(ds, port, true, true);
-
 	if (dev->ops->irq_enable)
 		ret = dev->ops->irq_enable(dev, port);
 	if (ret)
@@ -2181,6 +2179,9 @@ static int b53_change_mtu(struct dsa_switch *ds, int port, int mtu)
 
 	if (is5325(dev) || is5365(dev))
 		return -EOPNOTSUPP;
+
+	if (!dsa_is_cpu_port(ds, port))
+		return 0;
 
 	enable_jumbo = (mtu >= JMS_MIN_SIZE);
 	allow_10_100 = (dev->chip_id == BCM583XX_DEVICE_ID);
